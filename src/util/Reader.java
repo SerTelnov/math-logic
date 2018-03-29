@@ -4,12 +4,15 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.StringTokenizer;
 
 /**
  * Created by Telnov Sergey on 17.03.2018.
  */
 public class Reader {
+
     private BufferedReader br;
     private StringTokenizer st;
 
@@ -18,9 +21,7 @@ public class Reader {
     }
 
     public Reader(String fileName) throws IOException {
-        br = new BufferedReader(new InputStreamReader(
-                new FileInputStream(fileName))
-        );
+        br = Files.newBufferedReader(Paths.get(fileName));
     }
 
     public String nextLine() throws IOException {
