@@ -1,9 +1,11 @@
 package parser;
 
-import parser.expressions.BinOperation;
-import parser.expressions.Expression;
-import parser.expressions.Negate;
-import parser.expressions.Statement;
+import parser.expressions.*;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by Telnov Sergey on 17.03.2018.
@@ -11,6 +13,15 @@ import parser.expressions.Statement;
 public class ExpressionParser {
     private int index = 0;
     private String str;
+
+    public List<Expression> parseAssumption(String assumption) {
+        String[] values = assumption.split("(,|\\|-)");
+        return Arrays.stream(values)
+                .limit(values.length - 1)
+                .filter(it -> !it.isEmpty())
+                .map(this::parse)
+                .collect(Collectors.toList());
+    }
 
     public Expression parse(String input) {
         index = 0;
@@ -20,36 +31,24 @@ public class ExpressionParser {
 
     private Expression implication() {
         Expression curr = or();
-        while (true) {
-            if (!test(Default.IMPLICATION)) {
-                break;
-            } else {
-                curr = new BinOperation(curr, implication(), Default.IMPLICATION);
-            }
+        if (test(Default.IMPLICATION)) {
+            curr = new BinOperation(curr, implication(), Default.IMPLICATION);
         }
         return curr;
     }
 
     private Expression or() {
         Expression curr = and();
-        while (true) {
-            if (!test(Default.OR)) {
-                break;
-            } else {
-                curr = new BinOperation(curr, and(), Default.OR);
-            }
+        while (test(Default.OR)) {
+            curr = new BinOperation(curr, and(), Default.OR);
         }
         return curr;
     }
 
     private Expression and() {
         Expression curr = unOperation();
-        while (true) {
-            if (!test(Default.AND)) {
-                break;
-            } else {
-                curr = new BinOperation(curr, unOperation(), Default.AND);
-            }
+        while (test(Default.AND)) {
+           curr = new BinOperation(curr, unOperation(), Default.AND);
         }
         return curr;
     }
@@ -76,11 +75,14 @@ public class ExpressionParser {
     }
 
     private Expression statement() {
-        int i = index;
-        while (Character.isLetter(str.charAt(i)) || Character.isDigit(str.charAt(i))) {
+        boolean isVariable = !Character.isLowerCase(str.charAt(index));
+        int i = index + 1;
+        while (Character.isLetterOrDigit(str.charAt(i))) {
             i++;
         }
-        Expression exp = new Statement(str.substring(index, i));
+
+        String name = str.substring(index, i);
+        Expression exp = isVariable ? new Variable(name) : new Statement(name);
         index = i;
         return exp;
     }
