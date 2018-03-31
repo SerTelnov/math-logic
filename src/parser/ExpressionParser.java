@@ -14,6 +14,13 @@ public class ExpressionParser {
     private int index = 0;
     private String str;
 
+    public List<Expression> parseHypothesis(String hypothesis) {
+        return Stream.of(hypothesis.split("(,|\\|-)"))
+                .filter(s -> !s.isEmpty())
+                .map(this::parse)
+                .collect(Collectors.toList());
+    }
+
     public List<Expression> parseAssumption(String assumption) {
         String[] values = assumption.split("(,|\\|-)");
         return Arrays.stream(values)
@@ -82,7 +89,7 @@ public class ExpressionParser {
         }
 
         String name = str.substring(index, i);
-        Expression exp = isVariable ? new Variable(name) : new Statement(name);
+        Expression exp = isVariable ? new Variable(name) : new MateVariable(name);
         index = i;
         return exp;
     }

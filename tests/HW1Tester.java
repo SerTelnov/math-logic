@@ -1,7 +1,9 @@
 import hw1.OutputChecker;
 import org.junit.jupiter.api.Test;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -9,6 +11,8 @@ import java.io.File;
 import java.sql.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class HW1Tester {
     private void customAxiomTest(String[] res, String[] input) {
-        String[] output = new OutputChecker().check(input);
+        String[] output = new OutputChecker().check(Arrays.asList(input));
         assertArrayEquals(res, output);
     }
 
@@ -180,8 +184,7 @@ public class HW1Tester {
                     .filter(s -> !s.isEmpty())
                     .collect(Collectors.toList());
 
-            String[] data = new String[list.size()];
-            String[] res = new OutputChecker().check(list.toArray(data));
+            String[] res = new OutputChecker().check(list);
             Path resPath = Paths.get(String.format("tests\\hw1\\%d.out", i));
 
             list = Files.readAllLines(resPath);
@@ -208,17 +211,23 @@ public class HW1Tester {
                 .lines(Paths.get("tests\\hw1\\11.in"))
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
-
-        String[] data = new String[list.size()];
         long start = System.currentTimeMillis();
-        new OutputChecker().check(list.toArray(data));
-        long end = System.currentTimeMillis();
+        String[] res = new OutputChecker().check(list);
 
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("output.txt"))) {
+            for (int i = 0; i != res.length; i++) {
+                bw.append("(").append(String.valueOf(i + 1)).append(") ");
+                bw.append(res[i]);
+                bw.append("\n");
+            }
+        }
+
+        long end = System.currentTimeMillis();
         long millis = end - start;
         long second = (millis / 1000) % 60;
 
         String time = String.format("0:%02d:%d", second, millis);
-        assertFalse(second >= 40, "too slow!!!\nyour time: '" + time +
-                "'\nmust be less '0:40:000'");
+        assertFalse(second >= 20, "too slow!!!\nyour time: '" + time +
+                "'\nmust be less '0:20:000'");
     }
 }

@@ -2,6 +2,7 @@ import hw1.OutputChecker;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -16,18 +17,16 @@ public class MainHW1 {
         Path path = Paths.get("input.txt");
         List<String> list = Files
                 .lines(path)
-                .filter(it -> !it.isEmpty())
+                .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        String[] data = new String[list.size()];
-        String[] res = new OutputChecker().check(list.toArray(data));
-
-        BufferedWriter bw = Files.newBufferedWriter(Paths.get("output.txt"));
-        for (int i = 0; i != res.length; i++) {
-            bw.append("(").append(String.valueOf(i + 1)).append(") ");
-            bw.append(res[i]);
-            bw.append("\n");
+        String[] res = new OutputChecker().check(list);
+        try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("output.txt"))) {
+            for (int i = 0; i != res.length; i++) {
+                bw.append("(").append(String.valueOf(i + 1)).append(") ");
+                bw.append(res[i]);
+                bw.append("\n");
+            }
         }
-        bw.close();
     }
 }

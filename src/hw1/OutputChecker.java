@@ -3,10 +3,9 @@ package hw1;
 import javafx.util.Pair;
 import parser.Default;
 import parser.ExpressionParser;
+import parser.Util;
 import parser.expressions.BinOperation;
 import parser.expressions.Expression;
-import parser.expressions.Negate;
-import parser.expressions.Statement;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,26 +24,26 @@ public class OutputChecker {
     private HashMap<Expression, Integer> provenAssertions = new HashMap<>();
 
 
-    public String[] check(String[] input) {
+    public String[] check(List<String> input) {
         ExpressionParser parser = new ExpressionParser();
         hypotheses.clear();
         allStatements.clear();
         mp.clear();
         provenAssertions.clear();
 
-        List<Expression> listHypotheses = parser.parseAssumption(input[0]);
+        List<Expression> listHypotheses = parser.parseAssumption(input.get(0));
         for (int i = 0; i != listHypotheses.size(); i++) {
             hypotheses.put(listHypotheses.get(i), i + 1);
         }
 
-        final int n = input.length - 1;
+        final int n = input.size() - 1;
         Expression[] expressions = new Expression[n];
         messages = new String[n];
 
         for (int i = 0; i != n; i++) {
-            expressions[i] = parser.parse(input[i + 1]);
+            expressions[i] = parser.parse(input.get(i + 1));
+            checkExpression(expressions[i], i);
         }
-        checkExpressionsOnAxioms(expressions);
 
         for (int i = 0; i != n; i++) {
             if (messages[i] == null) {
@@ -77,7 +76,7 @@ public class OutputChecker {
                 } else if (provenAssertions.containsKey(expressions[i])) {
                     messages[i] = messages[provenAssertions.get(expressions[i]) - 1];
                 } else {
-                    messages[i] = getMessage(i, expressions[i], "Не доказано");
+                    messages[i] = getMessage(expressions[i], "Не доказано");
                 }
             }
         }
@@ -121,66 +120,32 @@ public class OutputChecker {
     private String getMPMessage(Expression exp, final int index) {
         Pair<Integer, Integer> indices = mp.get(exp);
         if (indices.getValue() < index + 1 && indices.getKey() < index + 1) {
-            return getMessage(index, exp, "M.P. " + indices.getKey() + ", " + indices.getValue());
+            return getMessage(exp, "M.P. " + indices.getKey() + ", " + indices.getValue());
         } else {
-            return getMessage(index, exp, "Не доказано");
+            return getMessage(exp, "Не доказано");
         }
     }
 
-    private String getMessage(final int index, Expression expression, String mes) {
+    private String getMessage(Expression expression, String mes) {
         return expression.toString() + " (" + mes + ")";
     }
 
-    private void checkExpressionsOnAxioms(Expression[] expressions) {
-        for (int i = 0; i != expressions.length; i++) {
-            if (!provenAssertions.containsKey(expressions[i])) {
-                if (mp.containsKey(expressions[i])) {
-                    messages[i] = getMPMessage(expressions[i], i);
-                } else if (messages[i] == null && hypotheses.containsKey(expressions[i])) {
-                    messages[i] = getMessage(i, expressions[i], "Предп. " + hypotheses.get(expressions[i]));
-                } else {
-                    for (int j = 0; j != Statements.rules.length; j++) {
-                        metaVariables.clear();
-                        if (isAxioms(Statements.rules[j], expressions[i])) {
-                            messages[i] = getMessage(i, expressions[i], "Сх. акс. " + (j + 1));
-                            break;
-                        }
-                    }
-                }
-                if (messages[i] != null) {
-                    putStatement(expressions[i], i);
-                }
-                allStatements.putIfAbsent(expressions[i], i);
-            }
-        }
-    }
-
-    private boolean isAxioms(Expression axiom, Expression exp) {
-        if (axiom instanceof Statement) {
-            Statement rule = (Statement) axiom;
-            if (!metaVariables.containsKey(rule.name)) {
-                metaVariables.put(rule.name, exp);
-                return true;
+    private void checkExpression(Expression expression, final int index) {
+        if (!provenAssertions.containsKey(expression)) {
+            if (mp.containsKey(expression)) {
+                messages[index] = getMPMessage(expression, index);
+            } else if (messages[index] == null && hypotheses.containsKey(expression)) {
+                messages[index] = getMessage(expression, "Предп. " + hypotheses.get(expression));
             } else {
-                return metaVariables.get(rule.name).equals(exp);
+                final int axiomNum = Util.getAxiomNumber(expression);
+                if (axiomNum > 0) {
+                    messages[index] = getMessage(expression, "Сх. акс. " + axiomNum);
+                }
             }
-        } else if (axiom instanceof BinOperation) {
-            if (!(exp instanceof BinOperation)) {
-                return false;
-            } else {
-                BinOperation binAxiom = (BinOperation) axiom;
-                BinOperation binExp = (BinOperation) exp;
-                return binAxiom.sign.equals(binExp.sign) &&
-                        isAxioms(binAxiom.getLeft(), binExp.getLeft()) &&
-                        isAxioms(binAxiom.getRight(), binExp.getRight());
+            if (messages[index] != null) {
+                putStatement(expression, index);
             }
-        } else if (axiom instanceof Negate) {
-            return exp instanceof Negate &&
-                    isAxioms(
-                            ((Negate) axiom).getExpression(),
-                            ((Negate) exp).getExpression());
-        } else {
-            return false;
+            allStatements.putIfAbsent(expression, index);
         }
     }
 }
