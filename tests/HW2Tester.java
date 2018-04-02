@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HW2Tester {
 
     private void customTest(String input, String answer) {
-        List<String> result = new Solver().solve(
+        String result = new Solver().solve(
                 Stream
                         .of(input.split("\n"))
                         .collect(Collectors.toList()));
-        assertEquals(answer, result.get(0) + result.get(1));
+        assertEquals(answer, result);
     }
 
     @Test
@@ -80,7 +80,7 @@ public class HW2Tester {
     public void test04() {
         customTest(
                 "A,B,C,D,F,E,F,G|-Z",
-                "A,B,C,D,F,E,F|-(G->Z)\n"
+                "A,B,C,D,F,E,F|-(G->Z)"
         );
     }
 
@@ -88,7 +88,7 @@ public class HW2Tester {
     public void test05() {
         customTest(
                 "D, E, A, T, D, T, Y|-Z",
-                "D,E,A,T,D,T|-(Y->Z)\n"
+                "D,E,A,T,D,T|-(Y->Z)"
         );
     }
 

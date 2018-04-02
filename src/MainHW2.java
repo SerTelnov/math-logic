@@ -20,11 +20,9 @@ public class MainHW2 {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        List<String> res = new Solver().solve(list);
+        String res = new Solver().solve(list);
         try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("output.txt"))) {
-            for (String s : res) {
-                bw.write(s);
-            }
+            bw.write(res);
         }
     }
 }
