@@ -1,5 +1,6 @@
 package parser;
 
+import javafx.util.Pair;
 import parser.expressions.*;
 
 import java.util.Arrays;
@@ -11,28 +12,46 @@ import java.util.stream.Stream;
  * Created by Telnov Sergey on 17.03.2018.
  */
 public class ExpressionParser {
+    private static final String regex = "(,|\\|-|\\|=)";
     private int index = 0;
     private String str;
 
-    public List<Expression> parseHypothesis(String hypothesis) {
-        return Stream.of(hypothesis.split("(,|\\|-)"))
-                .filter(s -> !s.isEmpty())
+    public Pair<List<Expression>, Expression> parseProvable(String provable, boolean collectEquals) {
+        String[] values = provable.split(regex);
+        return new Pair<>(
+                getExpressions(values, values.length - 1, collectEquals),
+                parse(values[values.length - 1])
+        );
+    }
+
+    public List<Expression> parseAssumption(String assumption) {
+        String[] values = assumption.split(regex);
+        return getExpressions(values, values.length - 1, true);
+    }
+
+    private List<Expression> getExpressions(final String[] statements, final int n, boolean collectEquals) {
+        Stream<String> stream = Arrays.stream(statements)
+                .limit(n)
+                .filter(it -> !it.isEmpty());
+        if (!collectEquals) {
+            stream = stream.distinct();
+        }
+        return stream
                 .map(this::parse)
                 .collect(Collectors.toList());
     }
 
-    public List<Expression> parseAssumption(String assumption) {
-        String[] values = assumption.split("(,|\\|-)");
-        return Arrays.stream(values)
-                .limit(values.length - 1)
-                .filter(it -> !it.isEmpty())
-                .map(this::parse)
-                .collect(Collectors.toList());
+    public Expression[] getExpressions(final List<String> statements) {
+        Expression[] expressions = new Expression[statements.size()];
+        for (int i = 0; i != statements.size(); i++) {
+            expressions[i] = parse(statements.get(i));
+        }
+        return expressions;
     }
 
     public Expression parse(String input) {
         index = 0;
-        str = input.replaceAll("\\s+","") + "\0";
+        str = input.replaceAll("\\s+", "") + "\0";
         return implication();
     }
 
@@ -55,7 +74,7 @@ public class ExpressionParser {
     private Expression and() {
         Expression curr = unOperation();
         while (test(Default.AND)) {
-           curr = new BinOperation(curr, unOperation(), Default.AND);
+            curr = new BinOperation(curr, unOperation(), Default.AND);
         }
         return curr;
     }

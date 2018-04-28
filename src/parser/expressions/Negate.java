@@ -2,13 +2,15 @@ package parser.expressions;
 
 import parser.Default;
 
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by Telnov Sergey on 17.03.2018.
  */
 public class Negate implements Expression {
-    private Expression expression;
+    public final Expression expression;
 
     public Negate(Expression expression) {
         this.expression = expression;
@@ -32,6 +34,11 @@ public class Negate implements Expression {
         } else {
             return expression.equals(((Negate) obj).expression);
         }
+    }
+    
+    @Override
+    public void setVariables(Set<String> variables) {
+        expression.setVariables(variables);
     }
 
     @Override

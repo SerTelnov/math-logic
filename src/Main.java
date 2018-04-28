@@ -1,22 +1,24 @@
 import parser.ExpressionParser;
+import parser.expressions.BinOperation;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Created by Telnov Sergey on 17.03.2018.
  */
 public class Main {
     public static void main(String[] args) throws IOException {
-        Path path = Paths.get("input.txt");
-        List<String> list = Files.readAllLines(path);
+        Scanner scanner = new Scanner(System.in);
 
-        String res = new ExpressionParser().parse(list.get(0)).toTree();
-        BufferedWriter bw = Files.newBufferedWriter(Paths.get("output.txt"));
-        bw.write(res);
-        bw.close();
+        ExpressionParser parser = new ExpressionParser();
+        System.out.println(((BinOperation) parser.parse(scanner.nextLine())).getRight().toString());
     }
 }

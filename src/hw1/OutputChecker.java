@@ -14,7 +14,8 @@ import java.util.List;
  * Created by Telnov Sergey on 23.03.2018.
  */
 public class OutputChecker {
-    private final HashMap<String, Expression> metaVariables = new HashMap<>();
+
+    private final ExpressionParser parser = new ExpressionParser();
     private String[] messages;
     private HashMap<Expression, Integer> hypotheses = new HashMap<>();
     private HashMap<Expression, Integer> allStatements = new HashMap<>();
@@ -23,14 +24,7 @@ public class OutputChecker {
 //    used statements
     private HashMap<Expression, Integer> provenAssertions = new HashMap<>();
 
-
     public String[] check(List<String> input) {
-        ExpressionParser parser = new ExpressionParser();
-        hypotheses.clear();
-        allStatements.clear();
-        mp.clear();
-        provenAssertions.clear();
-
         List<Expression> listHypotheses = parser.parseAssumption(input.get(0));
         for (int i = 0; i != listHypotheses.size(); i++) {
             hypotheses.put(listHypotheses.get(i), i + 1);
@@ -52,6 +46,7 @@ public class OutputChecker {
                     messages[i] = getMPMessage(expressions[i], i);
                 } else if (provenAssertions.containsKey(expressions[i])) {
                     messages[i] = messages[provenAssertions.get(expressions[i]) - 1];
+                    putStatement(expressions[i], i);
                 }
             } else {
                 putMP(expressions[i], i);
@@ -75,30 +70,53 @@ public class OutputChecker {
                     messages[i] = getMPMessage(expressions[i], i);
                 } else if (provenAssertions.containsKey(expressions[i])) {
                     messages[i] = messages[provenAssertions.get(expressions[i]) - 1];
-                } else {
+                }
+                if (messages[i] == null) {
                     messages[i] = getMessage(expressions[i], "Не доказано");
                 }
             }
         }
-//        for (int i = 0; i != n; i++) {
-//            messages[i] = "(" + (i + 1) + ") " + messages[i];
-//        }
+
+        for (int i = 0; i != n; i++) {
+            messages[i] = "(" + (i + 1) + ") " + messages[i];
+        }
+
+        hypotheses.clear();
+        allStatements.clear();
+        mp.clear();
+        provenAssertions.clear();
+
         return messages;
+    }
+
+    private String getMPMessage(Expression exp, final int index) {
+        Pair<Integer, Integer> indices = mp.get(exp);
+        if (indices.getValue() < index + 1 && indices.getKey() < index + 1) {
+            return getMessage(exp, "M.P. " + indices.getKey() + ", " + indices.getValue());
+        } else {
+            return null;
+        }
+    }
+
+    private String getMessage(Expression expression, String mes) {
+        return expression.toString() + " (" + mes + ")";
     }
 
     private void putMP(Expression expression, final int expNumber) {
         if (expression instanceof BinOperation) {
             BinOperation binOp = (BinOperation) expression;
             if (binOp.sign.equals(Default.IMPLICATION)) {
-                if (mp.containsKey(binOp.getRight())) {
-                    Pair<Integer, Integer> pair = mp.get(binOp.getRight());
-                    if (pair.getKey() <= expNumber + 1) {
-                        return;
-                    }
-                }
                 final Expression left = binOp.getLeft();
                 if (allStatements.containsKey(left)) {
                     final int leftIndex = allStatements.get(left);
+
+                    if (mp.containsKey(binOp.getRight())) {
+                        Pair<Integer, Integer> pair = mp.get(binOp.getRight());
+                        if (pair.getKey() <= expNumber + 1 && pair.getValue() <= expNumber + 1 && pair.getValue() <= leftIndex) {
+                            return;
+                        }
+                    }
+
                     mp.put(binOp.getRight(), new Pair<>(expNumber + 1, leftIndex + 1));
                 }
             }
@@ -109,25 +127,12 @@ public class OutputChecker {
         if (provenAssertions.containsKey(expression)) {
             final int index = provenAssertions.get(expression);
             if (index < expNumber) {
-                putMP(expression, expNumber);
+                putMP(expression, index - 1);
                 return;
             }
         }
         provenAssertions.put(expression, expNumber + 1);
         putMP(expression, expNumber);
-    }
-
-    private String getMPMessage(Expression exp, final int index) {
-        Pair<Integer, Integer> indices = mp.get(exp);
-        if (indices.getValue() < index + 1 && indices.getKey() < index + 1) {
-            return getMessage(exp, "M.P. " + indices.getKey() + ", " + indices.getValue());
-        } else {
-            return getMessage(exp, "Не доказано");
-        }
-    }
-
-    private String getMessage(Expression expression, String mes) {
-        return expression.toString() + " (" + mes + ")";
     }
 
     private void checkExpression(Expression expression, final int index) {
@@ -146,6 +151,9 @@ public class OutputChecker {
                 putStatement(expression, index);
             }
             allStatements.putIfAbsent(expression, index);
+        } else {
+            messages[index] = messages[provenAssertions.get(expression) - 1];
+            putStatement(expression, index);
         }
     }
 }

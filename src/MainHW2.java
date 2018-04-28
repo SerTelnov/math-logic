@@ -1,5 +1,4 @@
-import hw1.OutputChecker;
-import hw2.Solver;
+import hw2.Deduction;
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -20,7 +19,7 @@ public class MainHW2 {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        String res = new Solver().solve(list);
+        String res = new Deduction().applyDeduction(list);
         try (BufferedWriter bw = Files.newBufferedWriter(Paths.get("output.txt"))) {
             bw.write(res);
         }

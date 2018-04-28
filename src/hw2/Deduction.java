@@ -14,47 +14,62 @@ import java.util.*;
 /**
  * Created by Telnov Sergey on 31.03.2018.
  */
-public class Solver {
+public class Deduction {
     private Expression a;
-    private HashSet<Expression> hypothesis = new HashSet<>();
-    private HashSet<Expression> usedUtterances = new HashSet<>();
+    private Set<Expression> hypothesis = new HashSet<>();
+    private Set<Expression> usedUtterances = new HashSet<>();
     private HashMap<Expression, Pair<Expression, Expression>> mp = new HashMap<>();
-    private HashSet<Expression> allUtterances;
-    private StringJoiner proofTextCreator;
+    private List<Expression> proofCollector;
 
-    public String solve(final List<String> input) {
-        hypothesis.clear();
-        usedUtterances.clear();
-        mp.clear();
-        proofTextCreator = new StringJoiner("\n");
+    public String applyDeduction(final List<String> input) {
+        StringJoiner proofTextJoiner = new StringJoiner("\n");
+        Set<Expression> hypothesis = new HashSet<>();
 
         ExpressionParser parser = new ExpressionParser();
-        List<Expression> list = parser.parseHypothesis(input.get(0));
-        this.a = list.get(list.size() - 2);
+        Pair<List<Expression>, Expression> pair = parser.parseProvable(input.get(0), true);
+        List<Expression> list = pair.getKey();
+        list.add(pair.getValue());
+        Expression a = list.get(list.size() - 2);
+        Expression b = list.get(list.size() - 1);
         BinOperation provable = new BinOperation(a, list.get(list.size() - 1), Default.IMPLICATION);
 
         StringJoiner hypothesisJoiner = new StringJoiner(",", "", "|-");
         for (int i = 0; i < list.size() - 2; i++) {
             hypothesis.add(list.get(i));
-            hypothesisJoiner.add(list.get(i).toString());
+            hypothesisJoiner.add(list.get(i)
+                    .toString());
         }
 
-        proofTextCreator.add(hypothesisJoiner.toString() + provable.toString());
+        proofTextJoiner.add(hypothesisJoiner.toString() + provable.toString());
 
         List<Expression> statements = new ArrayList<>(input.size() - 1);
         for (int i = 1; i != input.size(); i++) {
             statements.add(parser.parse(input.get(i)));
         }
 
-        allUtterances = new HashSet<>(statements);
+        List<Expression> proof = applyDeduction(statements, hypothesis, a, b);
+        proof.forEach(it -> proofTextJoiner.add(it.toString()));
 
-        for (Expression exp : statements) {
+        return proofTextJoiner.toString();
+    }
+
+    public List<Expression> applyDeduction(List<Expression> expressions, Set<Expression> hypothesis,
+                                           final Expression a, final Expression b) {
+        this.hypothesis = hypothesis;
+        proofCollector = new ArrayList<>();
+        this.a = a;
+        Expression provable = new BinOperation(a, b, Default.IMPLICATION);
+
+        for (Expression exp : expressions) {
             if (provable.equals(processExpression(exp))) {
                 break;
             }
         }
 
-        return proofTextCreator.toString();
+        usedUtterances.clear();
+        mp.clear();
+
+        return proofCollector;
     }
 
     private void putMP(Expression expression) {
@@ -62,7 +77,7 @@ public class Solver {
             BinOperation binOp = (BinOperation) expression;
             if (binOp.sign.equals(Default.IMPLICATION) && !mp.containsKey(binOp.getRight())) {
                 final Expression left = binOp.getLeft();
-                if (allUtterances.contains(left)) {
+                if (usedUtterances.contains(left)) {
                     mp.put(binOp.getRight(), new Pair<>(expression, left));
                 }
             }
@@ -80,10 +95,10 @@ public class Solver {
                     currExp, a
             );
             nextExp = prevExp.getRight();
-            proofTextCreator
-                    .add(prevExp.toString())
-                    .add(currExp.toString())
-                    .add(nextExp.toString());
+
+            proofCollector.add(prevExp);
+            proofCollector.add(currExp);
+            proofCollector.add(nextExp);
         } else if (currExp.equals(a)) {
             BinOperation exp1 = (BinOperation) ExpressionCreator.getCustomExpression(
                     Statements.axiom01,
@@ -100,12 +115,11 @@ public class Solver {
             );
             nextExp = exp3.getRight();
 
-            proofTextCreator
-                    .add(exp1.toString())
-                    .add(exp2.toString())
-                    .add(exp3.toString())
-                    .add(exp4.toString())
-                    .add(nextExp.toString());
+            proofCollector.add(exp1);
+            proofCollector.add(exp2);
+            proofCollector.add(exp3);
+            proofCollector.add(exp4);
+            proofCollector.add(nextExp);
         } else if (mp.containsKey(currExp)) {
             Expression prevExp = mp.get(currExp).getValue();
             BinOperation exp1 = (BinOperation) ExpressionCreator.getCustomExpression(
@@ -115,10 +129,14 @@ public class Solver {
             BinOperation exp2 = (BinOperation) exp1.getRight();
             nextExp = exp2.getRight();
 
-            proofTextCreator
-                    .add(exp1.toString())
-                    .add(exp2.toString())
-                    .add(nextExp.toString());
+            proofCollector.add(exp1);
+            proofCollector.add(exp2);
+            proofCollector.add(nextExp);
+        } else {
+            for (Expression exp: usedUtterances) {
+                putMP(exp);
+            }
+            return processExpression(currExp);
         }
 
         usedUtterances.add(currExp);

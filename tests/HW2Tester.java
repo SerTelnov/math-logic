@@ -1,5 +1,4 @@
-import hw1.OutputChecker;
-import hw2.Solver;
+import hw2.Deduction;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -20,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 public class HW2Tester {
 
     private void customTest(String input, String answer) {
-        String result = new Solver().solve(
+        String result = new Deduction().applyDeduction(
                 Stream
                         .of(input.split("\n"))
                         .collect(Collectors.toList()));

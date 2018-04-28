@@ -1,6 +1,9 @@
 package parser.expressions;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by Telnov Sergey on 23.03.2018.
@@ -23,8 +26,18 @@ public class MateVariable implements Expression {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return obj != null;
+    }
+
+    @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    @Override
+    public void setVariables(Set<String> variables) {
+        variables.add(name);
     }
 
     @Override

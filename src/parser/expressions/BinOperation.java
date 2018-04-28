@@ -1,6 +1,10 @@
 package parser.expressions;
 
+import parser.Default;
+
+import java.util.HashMap;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by Telnov Sergey on 17.03.2018.
@@ -37,6 +41,25 @@ public class BinOperation implements Expression {
         } else {
             BinOperation that = (BinOperation) obj;
             return sign.equals(that.sign) && left.equals(that.left) && right.equals(that.right);
+        }
+    }
+
+    @Override
+    public void setVariables(Set<String> variables) {
+        left.setVariables(variables);
+        right.setVariables(variables);
+    }
+
+    public boolean evaluate(final boolean a, final boolean b) {
+        switch (sign) {
+            case Default.AND:
+                return a && b;
+            case Default.OR:
+                return a || b;
+            case Default.IMPLICATION:
+                return !a || b;
+            default:
+                return false;
         }
     }
 

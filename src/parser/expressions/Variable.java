@@ -1,12 +1,15 @@
 package parser.expressions;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Created by Telnov Sergey on 17.03.2018.
  */
 public class Variable implements Expression {
-    private String name;
+    public final String name;
 
     public Variable(String name) {
         this.name = name;
@@ -20,6 +23,11 @@ public class Variable implements Expression {
     @Override
     public int hashCode() {
         return Objects.hash(name);
+    }
+
+    @Override
+    public void setVariables(Set<String> variables) {
+        variables.add(name);
     }
 
     @Override

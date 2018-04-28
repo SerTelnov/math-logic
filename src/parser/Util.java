@@ -1,9 +1,6 @@
 package parser;
 
-import parser.expressions.BinOperation;
-import parser.expressions.Expression;
-import parser.expressions.Negate;
-import parser.expressions.MateVariable;
+import parser.expressions.*;
 
 import java.util.HashMap;
 
@@ -50,5 +47,23 @@ public class Util {
         } else {
             return false;
         }
+    }
+
+    public static Expression setExpression(final int numberOfVariable, final Expression exp) {
+        char var = 'A';
+        Expression[] variables = new Expression[3];
+
+        for (int i = 0; i != numberOfVariable; i++) {
+            variables[i] = new Variable(Character.toString((char) (var + i)));
+        }
+
+        if (numberOfVariable == 2) {
+            variables[2] = variables[0];
+        } else if (numberOfVariable == 1) {
+            variables[1] = variables[0];
+            variables[2] = variables[0];
+        }
+
+        return ExpressionCreator.getCustomExpression(exp, variables);
     }
 }
