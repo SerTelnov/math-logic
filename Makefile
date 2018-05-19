@@ -1,6 +1,6 @@
 all:
 	mkdir temp
-	javac -d temp -cp src src/MainHW3.java
+	javac -d temp -cp src src/MainHW4.java
 
 run:
-	java -cp temp: MainHW3
+	java -cp temp: MainHW4
