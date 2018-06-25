@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Created by Telnov Sergey on 24.04.2018.
  */
 public class HW3Tester {
+
     private static final ExpressionParser parser = new ExpressionParser();
     private static final ProofMaker proofMaker = new ProofMaker();
     private static final OutputChecker checker = new OutputChecker();

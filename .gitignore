@@ -1,0 +1,8 @@
+out/
+.idea/
+*.iml
+META-INF/
+
+*.txt
+*.in
+*.out

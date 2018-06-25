@@ -77,9 +77,9 @@ public class OutputChecker {
             }
         }
 
-        for (int i = 0; i != n; i++) {
-            messages[i] = "(" + (i + 1) + ") " + messages[i];
-        }
+         for (int i = 0; i != n; i++) {
+             messages[i] = "(" + (i + 1) + ") " + messages[i];
+         }
 
         hypotheses.clear();
         allStatements.clear();
