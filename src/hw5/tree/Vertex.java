@@ -2,6 +2,7 @@ package hw5.tree;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Telnov Sergey on 22.06.2018.
@@ -29,7 +30,6 @@ public class Vertex {
         return set.isEmpty();
     }
 
-
     public static Vertex combine(Vertex a, Vertex b) {
         Set<Integer> set = new HashSet<>(a.set);
         set.addAll(b.set);
@@ -56,6 +56,17 @@ public class Vertex {
         set.addAll(b.set);
 
         return new Vertex(kripke.getInt(set));
+    }
+
+    public int incSetNumber(final int value) {
+        set = set
+                .stream()
+                .map(it -> it + value)
+                .collect(Collectors.toSet());
+        return set
+                .stream()
+                .max(Integer::compare)
+                .orElse(0);
     }
 
     public boolean containsAll(Vertex that) {

@@ -21,10 +21,17 @@ public class Tree implements Iterable<Tree> {
         this.children = new ArrayList<>();
         this.forcedArgs = new HashSet<>();
         this.number = number;
+    }
 
-        if (parent != null) {
-            forcedArgs.addAll(parent.forcedArgs);
-        }
+    public Tree(final int number, Set<String> forcedArgs) {
+        this(null, number, forcedArgs);
+    }
+
+    public Tree(Tree parent, final int number, Set<String> forcedArgs) {
+        this.parent = parent;
+        this.number = number;
+        this.forcedArgs = forcedArgs;
+        this.children = new ArrayList<>();
     }
 
     public void addChild(Tree child) {
@@ -73,4 +80,39 @@ public class Tree implements Iterable<Tree> {
         setInt(intSet, args);
         return intSet;
     }
+
+    public List<String> asList() {
+        List<String> list = new ArrayList<>();
+        setList(list, 0);
+        return list;
+    }
+
+    private void setList(List<String> list, final int depth) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i != depth; i++) {
+            builder.append(' ');
+        }
+        builder.append('*');
+        forcedArgs.forEach(it -> builder.append(' ').append(it));
+
+        list.add(builder.toString());
+
+        for (Tree child : this) {
+            child.setList(list, depth + 1);
+        }
+    }
+
+    public Set<String> getAllForcedArgs() {
+        Set<String> set = new HashSet<>();
+        setArgs(set);
+        return set;
+    }
+
+    private void setArgs(Set<String> set) {
+        set.addAll(this.forcedArgs);
+        for (Tree child : this) {
+            child.setArgs(set);
+        }
+    }
+
 }

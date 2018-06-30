@@ -1,6 +1,8 @@
 package hw5.tree;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by Telnov Sergey on 18.06.2018.
@@ -47,6 +49,34 @@ public class TreeFactory {
             }
         }
         return curr;
+    }
+
+    public Set<Tree> nextForest() {
+        Set<Tree> forest = new HashSet<>();
+        int count = 0;
+
+        String currSequence = nextBracketSequence();
+        Tree curr = new Tree(count++);
+
+        for (int i = 1; i < currSequence.length() - 1; i++) {
+            if (currSequence.charAt(i) == '(') {
+                if (curr != null) {
+                    Tree child = new Tree(curr, count++);
+                    curr.addChild(child);
+                    curr = child;
+                } else {
+                    curr = new Tree(count++);
+                }
+            } else if (currSequence.charAt(i) == ')' && curr != null) {
+                if (curr.parent == null) {
+                    forest.add(curr);
+                    curr = null;
+                } else {
+                    curr = curr.parent;
+                }
+            }
+        }
+        return forest;
     }
 
     public static void setArgs(Tree curr, final int mask, List<String> args) {

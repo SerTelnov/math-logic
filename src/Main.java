@@ -19,6 +19,6 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         ExpressionParser parser = new ExpressionParser();
-        System.out.println(((BinOperation) parser.parse(scanner.nextLine())).getRight().toString());
+        System.out.println((parser.parse(scanner.nextLine())).toString());
     }
 }
