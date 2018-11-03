@@ -1,6 +1,6 @@
-# Math-logic
+# Math-logic university course
 
-Math-logic university course
+[Link](https://github.com/shd/logic2018/blob/master/hw-practice.pdf) with problems
 
 Solutions
 --
