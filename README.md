@@ -2,12 +2,12 @@
 
 [Link](https://github.com/shd/logic2018/blob/master/hw-practice.pdf) with problems
 
-Solutions
+Solutions for homeworks:
 --
-  * [Homework 0](https://github.com/SerTelnov/math-logic/tree/master/src/parser) Parsing logical expression
-  * [Homework 1](https://github.com/SerTelnov/math-logic/tree/master/src/hw1) Check proof
-  * [Homework 2](https://github.com/SerTelnov/math-logic/tree/master/src/hw2) Deduction theorem
-  * [Homework 3](https://github.com/SerTelnov/math-logic/tree/master/src/hw3) Propositional completeness theorem
-  * [Homework 4](https://github.com/SerTelnov/math-logic/tree/master/src/hw4) Heyting algebra
-  * [Homework 5](https://github.com/SerTelnov/math-logic/tree/master/src/hw5) Formula refutation in Intuitionism
-  * [Homework 6](https://github.com/SerTelnov/math-logic/tree/master/src/hw6) Сonstruction of the gating algebra
+  0. [Parsing logical expression](https://github.com/SerTelnov/math-logic/tree/master/src/parser)
+  1. [Check proof](https://github.com/SerTelnov/math-logic/tree/master/src/hw1)
+  2. [Deduction theorem](https://github.com/SerTelnov/math-logic/tree/master/src/hw2)
+  3. [Propositional completeness theorem](https://github.com/SerTelnov/math-logic/tree/master/src/hw3)
+  4. [Heyting algebra](https://github.com/SerTelnov/math-logic/tree/master/src/hw4)
+  5. [Formula refutation in Intuitionism](https://github.com/SerTelnov/math-logic/tree/master/src/hw5)
+  6. [Сonstruction of the gating algebra](https://github.com/SerTelnov/math-logic/tree/master/src/hw6)
